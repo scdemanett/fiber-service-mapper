@@ -382,7 +382,7 @@ function MapContent({
     }
   }, [timelineEnabled, selectedTimeIndex, timelineDates, selectedSelectionId, loadAddressesAtTime, loadAddresses]);
 
-  // Poll job status every 3 s; refresh address pins every 5th tick (~15 s).
+  // Poll job status every 10 s; refresh address pins every 3rd tick (~30 s).
   // Use stable boolean so the effect doesn't restart on every job object re-reference.
   const hasActiveJob = !!activeJob;
   useEffect(() => {
@@ -400,14 +400,14 @@ function MapContent({
             loadTimeline(selectedSelectionId);
             return;
           }
-          if (pollCountRef.current % 5 === 0) {
+          if (pollCountRef.current % 3 === 0) {
             await loadAddresses(selectedSelectionId);
           }
-          pollingRef.current = setTimeout(poll, 3000);
+          pollingRef.current = setTimeout(poll, 10_000);
         } catch (error) {
           if (cancelled) return;
           console.error('Error polling map updates:', error);
-          pollingRef.current = setTimeout(poll, 3000);
+          pollingRef.current = setTimeout(poll, 10_000);
         }
       };
       poll();
