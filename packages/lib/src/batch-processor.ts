@@ -12,6 +12,8 @@ export interface BatchProgress {
   id: string;
   name: string;
   status: 'pending' | 'running' | 'paused' | 'completed' | 'failed' | 'cancelled';
+  /** Fiber provider this job checks against (e.g. omni-fiber) */
+  provider: string;
   totalAddresses: number;
   checkedCount: number;
   serviceableCount: number;
@@ -59,6 +61,7 @@ export async function createBatchJob(
     id: job.id,
     name: job.name,
     status: job.status as BatchProgress['status'],
+    provider: job.provider,
     totalAddresses: job.totalAddresses,
     checkedCount: job.checkedCount,
     serviceableCount: job.serviceableCount,
@@ -85,6 +88,7 @@ export async function getBatchJob(jobId: string): Promise<BatchProgress | null> 
     id: job.id,
     name: job.name,
     status: job.status as BatchProgress['status'],
+    provider: job.provider,
     totalAddresses: job.totalAddresses,
     checkedCount: job.checkedCount,
     serviceableCount: job.serviceableCount,
@@ -344,6 +348,7 @@ export async function getAllBatchJobs(): Promise<BatchProgress[]> {
     id: job.id,
     name: job.name,
     status: job.status as BatchProgress['status'],
+    provider: job.provider,
     totalAddresses: job.totalAddresses,
     checkedCount: job.checkedCount,
     serviceableCount: job.serviceableCount,

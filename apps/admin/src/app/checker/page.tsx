@@ -61,6 +61,7 @@ interface BatchJob {
   id: string;
   name: string;
   status: 'pending' | 'running' | 'paused' | 'completed' | 'failed' | 'cancelled';
+  provider: string;
   totalAddresses: number;
   checkedCount: number;
   serviceableCount: number;
