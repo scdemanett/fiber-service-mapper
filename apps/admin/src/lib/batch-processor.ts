@@ -3,6 +3,7 @@ export {
   getBatchJob,
   updateBatchJobStatus,
   recordServiceabilityCheck,
+  pruneRedundantServiceabilityChecks,
   getUncheckedAddresses,
   getNonServiceableAddresses,
   getAddressesByServiceabilityType,

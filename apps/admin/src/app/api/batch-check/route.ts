@@ -5,6 +5,7 @@ import {
   getBatchJob,
   updateBatchJobStatus,
   recordServiceabilityCheck,
+  pruneRedundantServiceabilityChecks,
   getAddressesByServiceabilityType,
   getAddressesWithErrors,
 } from '@/lib/batch-processor';
@@ -442,9 +443,21 @@ async function processBatch(jobId: string, selectionId: string, provider: string
   // Wait for any remaining in-flight checks to finish.
   await Promise.allSettled([...inFlight]);
 
-  // Mark as completed
+  // Mark as completed, then drop duplicate outcome checks for addresses in this run.
   console.log(`Job ${jobId} completed`);
   await updateBatchJobStatus(jobId, 'completed');
+
+  const addressIds = addresses.map((address) => address.id);
+  if (addressIds.length > 0) {
+    try {
+      const { deletedCount } = await pruneRedundantServiceabilityChecks({ addressIds });
+      if (deletedCount > 0) {
+        console.log(`Job ${jobId}: pruned ${deletedCount} redundant check(s)`);
+      }
+    } catch (error) {
+      console.error(`Job ${jobId}: failed to prune redundant checks`, error);
+    }
+  }
 }
 
 /**

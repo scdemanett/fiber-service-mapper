@@ -5,7 +5,7 @@
  * to the database level instead of loading rows into memory.
  */
 
-import { prisma } from '@fsm/db';
+import { Prisma, prisma } from '@fsm/db';
 import type { ServiceabilityResult } from './fiber-decoder';
 
 export interface BatchProgress {
@@ -334,6 +334,66 @@ export async function getAddressesWithErrors(
     ) lc ON true
     WHERE lc.error IS NOT NULL AND lc.error != ''
   `;
+}
+
+/**
+ * Remove serviceability checks that did not change outcome from the prior check
+ * for the same address+provider. Keeps the latest check and any status-change
+ * points so map view and timeline scrubbing continue to work.
+ */
+export async function pruneRedundantServiceabilityChecks(
+  options: { addressIds?: string[]; batchSize?: number } = {}
+): Promise<{ deletedCount: number }> {
+  const batchSize = options.batchSize ?? 5000;
+  const addressFilter =
+    options.addressIds && options.addressIds.length > 0
+      ? Prisma.sql`AND sc."addressId" IN (${Prisma.join(options.addressIds)})`
+      : Prisma.empty;
+
+  let totalDeleted = 0;
+
+  while (true) {
+    const deleted = await prisma.$executeRaw`
+      DELETE FROM serviceability_checks
+      WHERE id IN (
+        SELECT id FROM (
+          WITH ordered AS (
+            SELECT
+              sc.id,
+              sc."serviceabilityType",
+              sc.serviceable,
+              ROW_NUMBER() OVER (
+                PARTITION BY sc."addressId", sc.provider
+                ORDER BY sc."checkedAt" DESC
+              ) AS rn,
+              LAG(sc."serviceabilityType") OVER (
+                PARTITION BY sc."addressId", sc.provider
+                ORDER BY sc."checkedAt"
+              ) AS prev_type,
+              LAG(sc.serviceable) OVER (
+                PARTITION BY sc."addressId", sc.provider
+                ORDER BY sc."checkedAt"
+              ) AS prev_serviceable
+            FROM serviceability_checks sc
+            WHERE 1 = 1 ${addressFilter}
+          )
+          SELECT id
+          FROM ordered
+          WHERE rn > 1
+            AND prev_type IS NOT NULL
+            AND "serviceabilityType" IS NOT DISTINCT FROM prev_type
+            AND serviceable IS NOT DISTINCT FROM prev_serviceable
+          LIMIT ${batchSize}
+        ) batch
+      )
+    `;
+
+    const deletedCount = Number(deleted);
+    totalDeleted += deletedCount;
+    if (deletedCount < batchSize) break;
+  }
+
+  return { deletedCount: totalDeleted };
 }
 
 /**
