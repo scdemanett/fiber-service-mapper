@@ -617,12 +617,12 @@ function CheckerContent() {
                     </Select>
                     {recheckType === 'preorder' && (
                       <p className="text-xs text-muted-foreground">
-                        Re-checks addresses that were marked as preorder to see if they're now available
+                        Re-checks addresses that were marked as preorder to see if they&apos;re now available
                       </p>
                     )}
                     {recheckType === 'noservice' && (
                       <p className="text-xs text-muted-foreground">
-                        Re-checks addresses that had no service to see if they're now serviceable
+                        Re-checks addresses that had no service to see if they&apos;re now serviceable
                       </p>
                     )}
                     {recheckType === 'errors' && (
@@ -679,7 +679,7 @@ function CheckerContent() {
                                 }}
                                 className="w-full bg-white dark:bg-gray-950 hover:bg-amber-100 dark:hover:bg-amber-950 border-amber-300 dark:border-amber-800"
                               >
-                                Switch to "{runningSelection.name}"
+                                Switch to &quot;{runningSelection.name}&quot;
                               </Button>
                             ) : null;
                           })()}

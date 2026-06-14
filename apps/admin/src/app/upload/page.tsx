@@ -90,7 +90,7 @@ export default function UploadPage() {
   const [enrichDialogPercent, setEnrichDialogPercent] = useState(0);
   const [enrichDialogEnriched, setEnrichDialogEnriched] = useState(0);
   const [enrichDialogFailed, setEnrichDialogFailed] = useState(0);
-  const [enrichDialogTotal, setEnrichDialogTotal] = useState(0);
+  const [, setEnrichDialogTotal] = useState(0);
   const [enrichDialogDone, setEnrichDialogDone] = useState(false);
 
   // Delete confirmation dialog state
