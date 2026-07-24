@@ -1,6 +1,6 @@
 {
   "name": "fiber-service-mapper",
-  "version": "2.6.6",
+  "version": "2.6.7",
   "private": true,
   "workspaces": [
     "apps/*",
@@ -8,12 +8,15 @@
   ],
   "overrides": {
     "@hono/node-server": "1.19.13",
-    "postcss": "8.5.15"
+    "find-my-way": "9.7.0",
+    "postcss": "8.5.15",
+    "sharp": "0.35.3"
   },
   "scripts": {
     "dev:admin": "npm run dev --workspace=apps/admin",
     "dev:public": "npm run dev --workspace=apps/public",
     "build:admin": "npm run build --workspace=apps/admin",
-    "build:public": "npm run generate --workspace=packages/db && npm run build --workspace=apps/public"
+    "build:public": "npm run generate --workspace=packages/db && npm run build --workspace=apps/public",
+    "typecheck": "npm run typecheck --workspaces --if-present"
   }
 }
