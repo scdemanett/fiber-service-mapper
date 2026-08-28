@@ -10,6 +10,7 @@ export default function PublicMapPage() {
       getAddressesAtTime={getAddressesAtTime}
       getCheckTimeline={getCheckTimeline}
       omniReferralUrl={process.env.NEXT_PUBLIC_OMNI_REFERRAL_URL}
+      cartoApiKey={process.env.NEXT_PUBLIC_CARTO_API_KEY}
     />
   );
 }

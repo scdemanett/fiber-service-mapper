@@ -176,6 +176,7 @@ Edit both `.env` files with your Supabase connection strings:
 | `DIRECT_URL` | `packages/db` | Prisma CLI migrations (direct connection port 5432) |
 | `NEXT_PUBLIC_BASE_URL` | `apps/admin`, `apps/public` | App base URL |
 | `NEXT_PUBLIC_OMNI_REFERRAL_URL` | `apps/admin`, `apps/public` | Omni Fiber referral link shown in map popups |
+| `NEXT_PUBLIC_CARTO_API_KEY` | `apps/admin`, `apps/public` | Carto raster basemap API key (free at [carto.com/basemaps/apikey](https://carto.com/basemaps/apikey/)) |
 
 #### 3️⃣ Setup Database
 

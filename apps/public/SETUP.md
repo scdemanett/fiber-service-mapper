@@ -21,6 +21,7 @@
    | `DATABASE_URL` | Your Supabase **transaction pooler** URL (port 6543) |
    | `NODE_ENV` | `production` |
    | `NEXT_PUBLIC_BASE_URL` | `https://your-project.vercel.app` (update after first deploy) |
+   | `NEXT_PUBLIC_CARTO_API_KEY` | Carto raster basemap API key |
 
    Your Supabase pooler URL looks like:
    ```

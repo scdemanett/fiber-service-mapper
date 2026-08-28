@@ -49,6 +49,8 @@ interface ServiceMapProps {
    * Phase 2: one entry per provider once multi-provider checks are stored.
    */
   providers: ServiceMapProvider[];
+  /** Carto raster basemap API key. Appended as `?key=` on the tile URL. */
+  cartoApiKey?: string;
   clusteringOptions?: {
     maxClusterRadius?: number;
     disableClusteringAtZoom?: number;
@@ -81,7 +83,12 @@ function getEffectiveStatus(checks: AddressWithCheck['checks']): string | null {
   return 'none';
 }
 
-export default function ServiceMap({ addresses, providers, clusteringOptions }: ServiceMapProps) {
+export default function ServiceMap({
+  addresses,
+  providers,
+  cartoApiKey,
+  clusteringOptions,
+}: ServiceMapProps) {
   const mapRef = useRef(null);
 
   const clusterConfig = {
@@ -214,7 +221,9 @@ export default function ServiceMap({ addresses, providers, clusteringOptions }: 
     >
       <TileLayer
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
-        url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+        url={`https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png${cartoApiKey ? `?key=${cartoApiKey}` : ''}`}
+        subdomains="abcd"
+        maxZoom={20}
       />
 
       <FitBounds addresses={addresses} />

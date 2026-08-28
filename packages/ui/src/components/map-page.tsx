@@ -109,6 +109,7 @@ export interface MapPageProps {
   getAddressesAtTime: (selectionId: string, date: Date) => Promise<AddressAtTime[]>;
   getCheckTimeline: (selectionId: string) => Promise<Date[]>;
   omniReferralUrl?: string;
+  cartoApiKey?: string;
 }
 
 function groupAddressRows(rows: AddressAtTime[]): AddressWithCheck[] {
@@ -160,6 +161,7 @@ function MapContent({
   getAddressesAtTime,
   getCheckTimeline,
   omniReferralUrl,
+  cartoApiKey,
 }: MapPageProps) {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -709,6 +711,7 @@ function MapContent({
               ...p,
               referralUrl: p.id === 'omni-fiber' ? omniReferralUrl : undefined,
             }))}
+            cartoApiKey={cartoApiKey}
             clusteringOptions={{
               maxClusterRadius: 80,
               disableClusteringAtZoom: 17,
