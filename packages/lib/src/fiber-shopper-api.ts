@@ -3,6 +3,10 @@ import { decodeResponse } from './fiber-decoder';
 
 const API_URL = 'https://shop.omnifiber.com/api/getCatalog';
 
+const MAX_ATTEMPTS = 3;
+const RETRY_BACKOFF_MS = [1000, 3000];
+const ATTEMPT_TIMEOUT_MS = 30_000;
+
 // Reuse sockets across requests for better throughput/latency.
 const agent = new https.Agent({
   keepAlive: true,
@@ -10,13 +14,15 @@ const agent = new https.Agent({
   maxFreeSockets: 16,
 });
 
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 /**
- * Fetch shopper data from the fiber service API.
- *
- * Returns `null` on network/transport failures.
+ * Single POST to getCatalog. Throws on transport failure, timeout, non-2xx, or decode error.
  */
-export async function fetchShopperData(address: string): Promise<unknown | null> {
-  return new Promise((resolve) => {
+function fetchShopperDataOnce(address: string): Promise<unknown> {
+  return new Promise((resolve, reject) => {
     const parsedUrl = new URL(API_URL);
 
     const payload = {
@@ -46,7 +52,25 @@ export async function fetchShopperData(address: string): Promise<unknown | null>
       headers,
     };
 
+    let attemptTimeout: ReturnType<typeof setTimeout> | undefined;
+    const clearAttemptTimeout = () => {
+      if (attemptTimeout !== undefined) {
+        clearTimeout(attemptTimeout);
+        attemptTimeout = undefined;
+      }
+    };
+
     const req = https.request(options, (res) => {
+      const statusCode = res.statusCode ?? 0;
+      if (statusCode < 200 || statusCode >= 300) {
+        res.resume();
+        res.on('end', () => {
+          clearAttemptTimeout();
+          reject(new Error(`HTTP ${statusCode}`));
+        });
+        return;
+      }
+
       const contentEncoding = res.headers['content-encoding'] || '';
       const chunks: Buffer[] = [];
 
@@ -55,23 +79,60 @@ export async function fetchShopperData(address: string): Promise<unknown | null>
       });
 
       res.on('end', () => {
+        clearAttemptTimeout();
         try {
           const rawBytes = Buffer.concat(chunks);
           const data = decodeResponse(rawBytes, contentEncoding);
           resolve(data);
         } catch (e) {
-          console.error(`Error decoding response for ${address}:`, e);
-          resolve(null);
+          const message = e instanceof Error ? e.message : 'Decode failed';
+          reject(new Error(message));
         }
       });
     });
 
+    attemptTimeout = setTimeout(() => {
+      req.destroy(new Error(`Request timeout after ${ATTEMPT_TIMEOUT_MS}ms`));
+    }, ATTEMPT_TIMEOUT_MS);
+
     req.on('error', (error) => {
-      console.error(`Error fetching data for ${address}:`, error.message);
-      resolve(null);
+      clearAttemptTimeout();
+      reject(error);
     });
 
     req.write(postData);
     req.end();
   });
+}
+
+/**
+ * Fetch shopper data from the fiber service API.
+ *
+ * Retries transient failures up to three times with backoff. Returns `null` only
+ * after all attempts fail.
+ */
+export async function fetchShopperData(address: string): Promise<unknown | null> {
+  for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+    try {
+      return await fetchShopperDataOnce(address);
+    } catch (e) {
+      const message = e instanceof Error ? e.message : 'Unknown error';
+
+      if (attempt < MAX_ATTEMPTS) {
+        const delayMs = RETRY_BACKOFF_MS[attempt - 1] ?? RETRY_BACKOFF_MS[RETRY_BACKOFF_MS.length - 1];
+        console.warn(
+          `[omni-fiber] fetch failed for ${address} (attempt ${attempt}/${MAX_ATTEMPTS}): ${message} — retrying in ${delayMs}ms`
+        );
+        await sleep(delayMs);
+        continue;
+      }
+
+      console.error(
+        `[omni-fiber] fetch failed for ${address} after ${MAX_ATTEMPTS} attempts:`,
+        message
+      );
+    }
+  }
+
+  return null;
 }
