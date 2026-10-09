@@ -297,6 +297,14 @@ Serviceability is determined by analyzing multiple fields:
 - `matchType`: `EXACT`, `NONE`
 - `isPreSale`: `0`, `1`
 
+### Kinetic (Windstream) API
+
+The Kinetic adapter authenticates against the consumer signup API (short-lived Bearer token) and calls `address/search`. Only `techType = FIBER` maps to **Available**; copper/DSL territory and unmatched addresses map to **No Service**.
+
+### Spectrum (Charter) — stub
+
+Registered with brand color `#005eff` but hidden from selectors until a residential serviceability source is wired up. Classification rules are fixed: only fiber-to-the-home maps to **Available** (planned fiber to **Preorder** if exposed); cable-only addresses map to **No Service**, the same way Kinetic treats DSL. Spectrum has no documented public residential API, and its consumer address check sits behind Akamai Bot Manager; the FCC National Broadband Map (Charter filings, technology code 50 = fiber) is the fallback data source.
+
 ## Database Schema
 
 ### Main Tables

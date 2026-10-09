@@ -40,6 +40,12 @@ export const PROVIDER_UI_METADATA: ProviderUIMeta[] = [
     color: 'rgb(36 167 106)',
     textColor: 'rgb(0 0 45)',
   },
+  {
+    id: 'spectrum',
+    name: 'Spectrum',
+    isStub: true,
+    color: '#005eff',
+  },
 ];
 
 /** Only providers that are fully implemented (not stubs). */

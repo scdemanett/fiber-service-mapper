@@ -1,6 +1,7 @@
 import omniFiber from './omni-fiber';
 import attFiber from './att-fiber';
 import kinetic from './kinetic';
+import spectrum from './spectrum';
 import type { ProviderConfig } from './types';
 
 /**
@@ -9,7 +10,7 @@ import type { ProviderConfig } from './types';
  * Add new providers here. The order determines display order in the UI.
  * Stub providers (isStub: true) are excluded from user-facing selectors.
  */
-export const PROVIDERS: ProviderConfig[] = [omniFiber, attFiber, kinetic];
+export const PROVIDERS: ProviderConfig[] = [omniFiber, attFiber, kinetic, spectrum];
 
 /**
  * Look up a provider by its id slug.
