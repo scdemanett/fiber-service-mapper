@@ -1,16 +1,21 @@
 # Fiber Service Mapper
 
-A monorepo for tracking and visualizing fiber internet service availability across addresses. Features batch serviceability checking, interactive mapping with timeline playback, and a public-facing read-only dashboard deployable to Vercel.
+Track and map fiber internet availability by address. Upload address data (e.g. from OpenAddresses), batch-check thousands of addresses against ISP serviceability APIs, and watch fiber rollout unfold on an interactive Leaflet map with timeline playback. Includes a read-only public dashboard you can deploy to Vercel.
+
+**Live demo:** [fibermap.app](https://fibermap.app)
+
+Useful for communities tracking a fiber build-out, journalists and researchers studying broadband expansion, or anyone who wants to know when fiber reached (or will reach) their street.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-purple.svg)](LICENSE)
 [![Next.js](https://img.shields.io/badge/Next.js-16-black)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-blue)](https://www.typescriptlang.org/)
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-fibermap.app-22c55e)](https://fibermap.app)
 
 ## ⚡ Quick Start
 
 ```bash
 # Clone and install all workspaces
-git clone <your-repo-url>
+git clone https://github.com/scdemanett/fiber-service-mapper.git
 cd fiber-service-mapper
 npm install
 
@@ -85,6 +90,15 @@ Shared React components: `PollingProvider`, `SelectionProvider` context, and the
 
 ## Features
 
+### 🔌 Supported Providers
+| Provider | Status |
+|---|---|
+| [Omni Fiber](https://www.omnifiber.com/) | ✅ Supported |
+| [Kinetic by Windstream](https://www.gokinetic.com/) | ✅ Supported |
+| [AT&T Fiber](https://www.att.com/internet/fiber/) | 🚧 Stub (address API is blocked server-side, see [notes](.reference-files/att-spectrum-api-notes.md)) |
+
+Providers are plugins. See [Provider Architecture](#provider-architecture) to add your own ISP.
+
 ### 🗺️ Interactive Map View with Timeline
 - Color-coded markers for service status (Available, Preorder, No Service)
 - Real-time updates during batch checking
@@ -151,7 +165,7 @@ Some address datasets (e.g. OpenAddresses rural exports) omit `city` and `postco
 #### 1️⃣ Clone and Install
 
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/scdemanett/fiber-service-mapper.git
 cd fiber-service-mapper
 npm install
 ```
